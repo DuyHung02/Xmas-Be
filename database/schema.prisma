@@ -3,6 +3,54 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  username  String    @unique @db.VarChar(20)
+  password  String    @db.VarChar(200)
+  isAdmin   Boolean   @default(false) @map(name: "is_admin") @db.Boolean
+  createdAt DateTime  @default(now()) @map(name: "created_at")
+  updatedAt DateTime  @default(now()) @map(name: "updated_at")
+  profile   Profile?
+  messages  Message[]
+
+  @@map(name: "users")
+}
+
+model Profile {
+  id        Int        @id @default(autoincrement())
+  userId    Int        @map(name: "user_id") @db.Integer @unique
+  email     String     @unique @db.VarChar(20)
+  avatar    String
+  gender    GenderEnum @default(HIDE)
+  firstName String     @map(name: "first_name") @db.VarChar(100)
+  lastName  String     @map(name: "last_name") @db.VarChar(100)
+  createdAt DateTime   @default(now()) @map(name: "created_at")
+  updatedAt DateTime   @default(now()) @map(name: "updated_at")
+  user      User       @relation(fields: [userId], references: [id])
+
+  @@map(name: "profiles")
+}
+
+model Message {
+  id         Int      @id @default(autoincrement())
+  senderId   Int      @map(name: "sender_id") @db.Integer
+  receiverId Int      @map(name: "receiver_id") @db.Integer
+  content    String
+  recall     Boolean  @default(false) @db.Boolean
+  createdAt  DateTime @default(now()) @map(name: "created_at")
+  updatedAt  DateTime @default(now()) @map(name: "updated_at")
+  sender     User     @relation(fields: [senderId], references: [id])
+
+  @@map(name: "messages")
+}
+
+enum GenderEnum {
+  HIDE   @map("hide")
+  MALE   @map("male")
+  FEMALE @map("female")
+  OTHER  @map("other")
 }
