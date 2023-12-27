@@ -3,6 +3,7 @@ const path = require('path');
 const express = require('express');
 const logger = require('morgan');
 const cors = require('cors');
+const userRouter = require('./routes/user')
 
 // Set up the express app
 const app = express();
@@ -14,6 +15,8 @@ app.use(logger('dev'));
 // Parse incoming requests data
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use('/user', userRouter);
 
 app.get('/', (req, res) =>
     res.status(200).send({
