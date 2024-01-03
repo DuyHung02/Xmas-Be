@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  username  String    @unique @db.VarChar(20)
-  password  String    @db.VarChar(200)
-  isAdmin   Boolean   @default(false) @map(name: "is_admin") @db.Boolean
-  createdAt DateTime  @default(now()) @map(name: "created_at")
-  updatedAt DateTime  @default(now()) @map(name: "updated_at")
-  profile   Profile?
-  messages  Message[]
+  id            Int                @id @default(autoincrement())
+  username      String             @unique @db.VarChar(20)
+  password      String             @db.VarChar(200)
+  isAdmin       Boolean            @default(false) @map(name: "is_admin") @db.Boolean
+  createdAt     DateTime           @default(now()) @map(name: "created_at")
+  updatedAt     DateTime           @default(now()) @map(name: "updated_at")
+  profile       Profile?
+  conversations UserConversation[]
+  message       Message[]
 
   @@map(name: "users")
 }
@@ -35,15 +36,35 @@ model Profile {
   @@map(name: "profiles")
 }
 
+model Conversation {
+  id        Int                @id @default(autoincrement())
+  name      String             @db.VarChar(50)
+  avatar    String
+  createdAt DateTime           @default(now()) @map(name: "created_at")
+  updatedAt DateTime           @default(now()) @map(name: "updated_at")
+  userIds   UserConversation[]
+  messages  Message[]
+}
+
+model UserConversation {
+  userId         Int          @map(name: "user_id") @db.Integer
+  conversationId Int          @map(name: "conversation_id") @db.Integer
+  user           User         @relation(fields: [userId], references: [id])
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  @@id([userId, conversationId])
+}
+
 model Message {
-  id         Int      @id @default(autoincrement())
-  senderId   Int      @map(name: "sender_id") @db.Integer
-  receiverId Int      @map(name: "receiver_id") @db.Integer
-  content    String
-  recall     Boolean  @default(false) @db.Boolean
-  createdAt  DateTime @default(now()) @map(name: "created_at")
-  updatedAt  DateTime @default(now()) @map(name: "updated_at")
-  sender     User     @relation(fields: [senderId], references: [id])
+  id             Int          @id @default(autoincrement())
+  senderId       Int          @map(name: "sender_id") @db.Integer
+  conversationId Int          @map(name: "conversation_id") @db.Integer
+  content        String
+  recall         Boolean      @default(false) @db.Boolean
+  createdAt      DateTime     @default(now()) @map(name: "created_at")
+  updatedAt      DateTime     @default(now()) @map(name: "updated_at")
+  sender         User         @relation(fields: [senderId], references: [id])
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
 
   @@map(name: "messages")
 }

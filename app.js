@@ -4,6 +4,7 @@ const express = require('express');
 const logger = require('morgan');
 const cors = require('cors');
 const userRouter = require('./routes/user')
+const messageRouter = require('./routes/message')
 
 // Set up the express app
 const app = express();
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use('/user', userRouter);
+app.use('/message', messageRouter);
 
 app.get('/', (req, res) =>
     res.status(200).send({
