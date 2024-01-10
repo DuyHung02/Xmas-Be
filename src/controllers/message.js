@@ -72,9 +72,21 @@ const createMessage = async (req, res) => {
             data: data
         })
 
+        const messageInfo = await prisma.message.findUnique({
+            where: {id: message.id},
+            include: {
+                sender: {
+                    select: {
+                        id: true,
+                        profile: true,
+                    }
+                }
+            }
+        })
+
         return res.status(200).send({
             message: 'create message success',
-            data: message
+            data: messageInfo
         })
     } catch (err) {
         console.log(err.message);

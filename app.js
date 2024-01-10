@@ -3,12 +3,18 @@ const path = require('path');
 const express = require('express');
 const logger = require('morgan');
 const cors = require('cors');
-const userRouter = require('./routes/user')
-const messageRouter = require('./routes/message')
+const userRouter = require('./src/routes/user')
+const messageRouter = require('./src/routes/message')
+const {createServer} = require("node:http");
+const configureSocket = require('./src/socket/server.socket');
+
 
 // Set up the express app
 const app = express();
 app.use(cors());
+const server = createServer(app);
+
+const io = configureSocket(server)
 
 // Log requests to the console.
 app.use(logger('dev'));
@@ -26,7 +32,7 @@ app.get('/', (req, res) =>
     }),
 );
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(new Date());
   console.log(`Server is running on port ${PORT}.`);
 });
