@@ -12,10 +12,8 @@ const configureSocket = (server) => {
         });
 
         io.on('connection', (socket) => {
-            console.log('a user connected');
 
             socket.on('JOIN_CONVERSATION', (conversationId) => {
-                console.log('join id: ', conversationId)
                 socket.join(`CONVERSATION_${conversationId}`);
             })
 

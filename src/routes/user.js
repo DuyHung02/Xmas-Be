@@ -5,5 +5,6 @@ const profileController = require('../controllers/profile')
 
 router.post('/login', userController.login);
 router.get('/profile/:id', profileController.getProfileByUserId);
+router.get('/list', userController.getListUsers);
 
 module.exports = router;

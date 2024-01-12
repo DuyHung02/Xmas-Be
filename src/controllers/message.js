@@ -42,6 +42,59 @@ const getListConversations = async (req, res) => {
     }
 }
 
+const createConversation = async (req, res) => {
+    try {
+        const isValid = await validate.run(req, res, [
+            body('selectedFriends')
+                .notEmpty()
+                .withMessage(`There must be 2 or more people`)
+                .custom((selectedFriends) => {
+                    if (selectedFriends.length < 2) {
+                        return Promise.reject(`There must be 2 or more people`)
+                    }
+                    return true;
+                }),
+            body('conversation')
+                .notEmpty()
+                .withMessage('conversation must not be empty'),
+        ])
+
+        if (!isValid) {
+            return isValid;
+        }
+
+        const {selectedFriends, conversation} = req.body;
+        const dataConversation = {
+            name: conversation.name,
+            avatar: conversation.avatar,
+        }
+
+        const newConversation = await prisma.conversation.create({
+            data: {
+                name: dataConversation.name,
+                avatar: dataConversation.avatar,
+            },
+        });
+
+        selectedFriends.map(async (u)=> {
+            await prisma.userConversation.create({
+                data: {
+                    userId: u.id,
+                    conversationId: newConversation.id,
+                }
+            })
+        })
+
+        return res.status(200).send({
+            message: 'create conversation success',
+            data: newConversation,
+        });
+    } catch (err) {
+        console.log(err.message);
+        return res.status(500).send({error: err.message});
+    }
+}
+
 const createMessage = async (req, res) => {
     try {
         const isValid = await validate.run(req, res, [
@@ -96,5 +149,6 @@ const createMessage = async (req, res) => {
 
 module.exports = {
     getListConversations,
+    createConversation,
     createMessage,
 }

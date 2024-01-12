@@ -22,12 +22,12 @@ const login = async (req, res) => {
             console.log('not valid', isValid);
             return;
         }
-        const { username, password } = req.body;
+        const {username, password} = req.body;
         const userExists = await prisma.user.findUnique({
-            where: { username: username },
+            where: {username: username},
         });
         if (!userExists) {
-            return res.status(404).send({ error: 'username not found' });
+            return res.status(404).send({error: 'username not found'});
         }
         console.log(userExists)
         const passwordMatched = () => {
@@ -35,7 +35,7 @@ const login = async (req, res) => {
         }
 
         if (!passwordMatched()) {
-            return res.status(422).send({ error: 'Password incorrect' });
+            return res.status(422).send({error: 'Password incorrect'});
         }
         const secretKey = process.env.JWT_SECRET_KEY || 'xmas-merry-christmas'
         const token = jwt.sign(
@@ -61,10 +61,39 @@ const login = async (req, res) => {
         });
     } catch (err) {
         console.log(err.message);
-        return res.status(500).send({ error: err.message });
+        return res.status(500).send({error: err.message});
+    }
+}
+
+const getListUsers = async (req, res) => {
+    try {
+        const listUsers = await prisma.user.findMany({
+            select: {
+                id: true,
+                username: true,
+                profile: {
+                    select: {
+                        id: true,
+                        email: true,
+                        avatar: true,
+                        gender: true,
+                        firstName: true,
+                        lastName: true,
+                    }
+                }
+            },
+        });
+        return res.status(200).send({
+            message: 'get list users success',
+            data: listUsers,
+        });
+    } catch (err) {
+        console.log(err.message)
+        return res.status(500).send({error: err.message});
     }
 }
 
 module.exports = {
     login,
+    getListUsers,
 }

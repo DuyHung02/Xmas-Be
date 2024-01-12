@@ -1,5 +1,3 @@
-const prisma = require('../database/connection')
-
 const messageSocket = (socket) => {
     socket.on('SEND_MESSAGE', async (payload) => {
         try {
